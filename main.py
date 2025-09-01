@@ -44,7 +44,7 @@ def transform_text(text: str) -> str:
     text = [ps.stem(word) for word in text]
     return " ".join(text)
 
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="Templates")
 
 @app.get("/predict")
 async def predict_get(text: str):
