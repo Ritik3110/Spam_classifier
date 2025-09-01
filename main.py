@@ -14,6 +14,17 @@ import os
 nltk_data_path = os.path.join(os.getcwd(), "nltk_data")
 nltk.data.path.append(nltk_data_path)
 
+# Ensure nltk resources are available (punkt, punkt_tab, stopwords)
+for resource in ["stopwords", "punkt", "punkt_tab"]:
+    try:
+        # Different paths depending on type
+        if resource == "stopwords":
+            nltk.data.find("corpora/stopwords")
+        else:
+            nltk.data.find(f"tokenizers/{resource}")
+    except LookupError:
+        nltk.download(resource, download_dir=nltk_data_path)
+
 # Ensure nltk resources are available
 nltk.download('stopwords', download_dir=nltk_data_path)
 nltk.download('punkt', download_dir=nltk_data_path)
