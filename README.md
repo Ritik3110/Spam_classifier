@@ -48,4 +48,6 @@ It uses a trained machine learning model (scikit-learn) to classify text message
 4. Deploy 🚀
 
 ---
-Made with ❤️ using FastAPI & scikit-learn
+Made with ❤️ by Ritik Agarwal
+
+Thanks to XCampus
