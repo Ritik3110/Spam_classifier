@@ -1,13 +1,13 @@
 import pickle
 import nltk
 import string
-from fastapi import FastAPI
-from pydantic import BaseModel
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
+
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
 
 import os
 
@@ -46,22 +46,53 @@ def transform_text(text: str) -> str:
 
 templates = Jinja2Templates(directory="templates")
 
+@app.get("/predict")
+async def predict_get(text: str):
+    try:
+        text_transformed = transform_text(text)
+        text_vectorized = vectorizer.transform([text_transformed])
+        prediction = model.predict(text_vectorized)[0]
+        result = "spam" if prediction == 1 else "ham"
+        return {"prediction": result}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# Home route -> HTML
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-# POST route (prediction)
-@app.post("/predict")
+# Health-check -> for JS status function
+@app.get("/api")
+async def health_check():
+    return {"status": "ok", "message": "API is running"}
+
+# Predict endpoint
+@app.post("/api/predict")
 async def predict(input_data: TextInput):
     try:
-        # Transform & vectorize
+        # Transform text (assuming you have transform_text function)
         text_transformed = transform_text(input_data.text)
         text_vectorized = vectorizer.transform([text_transformed])
 
-        # Predict
-        prediction = model.predict(text_vectorized)[0]
-        result = "spam" if prediction == 1 else "ham"
+        # Get probabilities
+        probabilities = model.predict_proba(text_vectorized)[0]
+        spam_prob = float(probabilities[1])
+        not_spam_prob = float(probabilities[0])
 
-        return {"prediction": result}
+        is_spam = spam_prob > 0.5
+        confidence = spam_prob if is_spam else not_spam_prob
+
+        return {
+            "is_spam": is_spam,
+            "confidence": confidence,
+            "probabilities": {
+                "not_spam": not_spam_prob,
+                "spam": spam_prob
+            }
+        }
     except Exception as e:
-        return {"error": str(e)}
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+ 
