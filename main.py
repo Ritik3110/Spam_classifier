@@ -10,7 +10,18 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
 import os
+from fastapi.middleware.cors import CORSMiddleware
 
+app = FastAPI()
+
+# Allow frontend origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Or ["http://localhost:3000"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 nltk_data_path = os.path.join(os.getcwd(), "nltk_data")
 nltk.data.path.append(nltk_data_path)
 
