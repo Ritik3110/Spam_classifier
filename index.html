@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spam Detection Tool</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .input-group textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 140px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 2px solid #e1e5e9;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .result-section {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid #667eea;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .result-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .result-icon.spam {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        }
+
+        .result-icon.not-spam {
+            background: linear-gradient(135deg, #51cf66, #40c057);
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .result-subtitle {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .confidence-bar {
+            margin: 20px 0;
+        }
+
+        .confidence-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .confidence-progress {
+            width: 100%;
+            height: 12px;
+            background: #e1e5e9;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.8s ease;
+        }
+
+        .confidence-fill.spam {
+            background: linear-gradient(90deg, #ff6b6b, #ee5a52);
+        }
+
+        .confidence-fill.not-spam {
+            background: linear-gradient(90deg, #51cf66, #40c057);
+        }
+
+        .probabilities {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .probability-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e1e5e9;
+        }
+
+        .probability-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .probability-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .probability-value.not-spam {
+            color: #40c057;
+        }
+
+        .probability-value.spam {
+            color: #ee5a52;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fff5f5;
+            border: 2px solid #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .api-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            z-index: 1000;
+        }
+
+        .api-status.online {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .api-status.offline {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .probabilities {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="api-status" id="apiStatus">
+        <i class="fas fa-circle"></i> Checking API...
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i> Spam Detection</h1>
+            <p>Analyze your messages to detect spam with AI-powered accuracy</p>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="messageInput">
+                    <i class="fas fa-envelope"></i> Enter your message:
+                </label>
+                <textarea 
+                    id="messageInput" 
+                    placeholder="Type or paste your message here to check if it's spam..."
+                    maxlength="1000"
+                ></textarea>
+                <div style="text-align: right; margin-top: 5px; color: #666; font-size: 0.9rem;">
+                    <span id="charCount">0</span>/1000 characters
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" id="analyzeBtn" onclick="analyzeMessage()">
+                    <i class="fas fa-search"></i> Analyze Message
+                </button>
+                <button class="btn btn-secondary" onclick="clearInput()">
+                    <i class="fas fa-eraser"></i> Clear
+                </button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing your message...</p>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-card">
+                <div class="result-header">
+                    <div class="result-icon" id="resultIcon">
+                        <i class="fas fa-question"></i>
+                    </div>
+                    <div>
+                        <div class="result-title" id="resultTitle">Analysis Result</div>
+                        <div class="result-subtitle" id="resultSubtitle">Message analyzed successfully</div>
+                    </div>
+                </div>
+
+                <div class="confidence-bar">
+                    <div class="confidence-label">
+                        <span>Confidence Level</span>
+                        <span id="confidenceValue">0%</span>
+                    </div>
+                    <div class="confidence-progress">
+                        <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="probabilities">
+                    <div class="probability-item">
+                        <div class="probability-label">Not Spam</div>
+                        <div class="probability-value not-spam" id="notSpamProb">0%</div>
+                    </div>
+                    <div class="probability-item">
+                        <div class="probability-label">Spam</div>
+                        <div class="probability-value spam" id="spamProb">0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API configuration
+        const API_BASE_URL = window.location.origin; // Will work for both local and deployed
+        let apiUrl = 'http://127.0.0.1:8000/predict';
+
+        // DOM elements
+        const messageInput = document.getElementById('messageInput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const loading = document.getElementById('loading');
+        const resultSection = document.getElementById('resultSection');
+        const error = document.getElementById('error');
+        const charCount = document.getElementById('charCount');
+        const apiStatus = document.getElementById('apiStatus');
+
+        // Character counter
+        messageInput.addEventListener('input', function() {
+            const count = this.value.length;
+            charCount.textContent = count;
+            
+            if (count > 800) {
+                charCount.style.color = '#ee5a52';
+            } else if (count > 600) {
+                charCount.style.color = '#f39c12';
+            } else {
+                charCount.style.color = '#666';
+            }
+        });
+
+        // Check API status on load
+        window.addEventListener('load', checkApiStatus);
+
+        async function checkApiStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/`);
+                if (response.ok) {
+                    apiStatus.innerHTML = '<i class="fas fa-circle"></i> API Online';
+                    apiStatus.className = 'api-status online';
+                    apiUrl = `${API_BASE_URL}/api`;
+                } else {
+                    throw new Error('API not responding');
+                }
+            } catch (err) {
+                apiStatus.innerHTML = '<i class="fas fa-circle"></i> API Offline';
+                apiStatus.className = 'api-status offline';
+                // Try alternative URL for local development
+                apiUrl = 'http://localhost:8000';
+            }
+        }
+
+        async function analyzeMessage() {
+            const message = messageInput.value.trim();
+            
+            if (!message) {
+                showError('Please enter a message to analyze.');
+                return;
+            }
+
+            if (message.length < 10) {
+                showError('Message is too short. Please enter at least 10 characters.');
+                return;
+            }
+
+            // Show loading state
+            setLoading(true);
+            hideError();
+            hideResult();
+
+            try {
+                const response = await fetch(`${apiUrl}/predict`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: message })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                displayResult(result);
+            } catch (err) {
+                console.error('Error:', err);
+                showError('Failed to analyze message. Please check your connection and try again.');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function displayResult(result) {
+            const resultIcon = document.getElementById('resultIcon');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultSubtitle = document.getElementById('resultSubtitle');
+            const confidenceValue = document.getElementById('confidenceValue');
+            const confidenceFill = document.getElementById('confidenceFill');
+            const notSpamProb = document.getElementById('notSpamProb');
+            const spamProb = document.getElementById('spamProb');
+
+            // Set result icon and title
+            if (result.is_spam) {
+                resultIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+                resultIcon.className = 'result-icon spam';
+                resultTitle.textContent = 'Spam Detected!';
+                resultSubtitle.textContent = 'This message appears to be spam.';
+            } else {
+                resultIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+                resultIcon.className = 'result-icon not-spam';
+                resultTitle.textContent = 'Not Spam';
+                resultSubtitle.textContent = 'This message appears to be legitimate.';
+            }
+
+            // Set confidence
+            const confidence = Math.round(result.confidence * 100);
+            confidenceValue.textContent = `${confidence}%`;
+            
+            // Animate confidence bar
+            setTimeout(() => {
+                confidenceFill.style.width = `${confidence}%`;
+                if (result.is_spam) {
+                    confidenceFill.className = 'confidence-fill spam';
+                } else {
+                    confidenceFill.className = 'confidence-fill not-spam';
+                }
+            }, 100);
+
+            // Set probabilities
+            const notSpamPercent = Math.round(result.probabilities.not_spam * 100);
+            const spamPercent = Math.round(result.probabilities.spam * 100);
+            
+            notSpamProb.textContent = `${notSpamPercent}%`;
+            spamProb.textContent = `${spamPercent}%`;
+
+            // Show result
+            resultSection.style.display = 'block';
+            resultSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function clearInput() {
+            messageInput.value = '';
+            charCount.textContent = '0';
+            hideError();
+            hideResult();
+            messageInput.focus();
+        }
+
+        function setLoading(isLoading) {
+            loading.style.display = isLoading ? 'block' : 'none';
+            analyzeBtn.disabled = isLoading;
+        }
+
+        function showError(message) {
+            error.textContent = message;
+            error.style.display = 'block';
+        }
+
+        function hideError() {
+            error.style.display = 'none';
+        }
+
+        function hideResult() {
+            resultSection.style.display = 'none';
+        }
+
+        // Enter key to analyze
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                analyzeMessage();
+            }
+        });
+    </script>
+</body>
+</html>
