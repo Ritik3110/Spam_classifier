@@ -454,7 +454,7 @@
 
         async function checkApiStatus() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/`);
+                const response = await fetch(`${API_BASE_URL}/api`);
                 if (response.ok) {
                     apiStatus.innerHTML = '<i class="fas fa-circle"></i> API Online';
                     apiStatus.className = 'api-status online';
