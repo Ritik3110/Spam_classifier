@@ -1,110 +1,51 @@
-# Spam Classifier API 🚀
+# Spam Classifier API
 
-A FastAPI-based web app that classifies text messages as **spam** or **ham** using an NLP pipeline with NLTK, TF-IDF vectorization, and a trained ML model.
-
----
+This project is a **Spam Classifier API** built with **FastAPI**.  
+It uses a trained machine learning model (scikit-learn) to classify text messages as **spam** or **ham**.
 
 ## Features
-- REST API with FastAPI
-- Preprocessing using NLTK (tokenization, stopwords, stemming)
-- ML model for spam classification
-- HTML frontend with Jinja2 templates
-- Ready for deployment on **Render** or similar platforms
+- REST API built with FastAPI 🚀
+- Preprocessing with NLTK (stopwords removal, stemming, tokenization)
+- Machine Learning model trained and loaded via pickle
+- HTML frontend (Jinja2 templates)
+- Deployed on Render (Free Hosting)
 
----
+## Hosted URL
+👉 The project is live at: [https://spam-classifier-s5p5.onrender.com/](https://spam-classifier-s5p5.onrender.com/)
 
-## Requirements
-
-Create a virtual environment (recommended) and install:
-
-```bash
-pip install -r requirements.txt
-```
-
-If you don’t have `requirements.txt`, here’s a working one:
-
-```
-fastapi==0.110.0
-uvicorn==0.29.0
-pydantic==1.10.14
-scikit-learn==1.3.2
-numpy==1.26.4
-nltk==3.8.1
-jinja2==3.1.3
-```
-
----
-
-## Run Locally
-
-1. Clone the repo:
-```bash
-git clone https://github.com/yourusername/spam-classifier.git
-cd spam-classifier
-```
-
-2. Run with Uvicorn:
-```bash
-uvicorn app:app --reload
-```
-> ⚠️ Replace `app:app` with `main:app` if your entry file is named `main.py`.
-
-3. Visit in browser:
-```
-http://127.0.0.1:8000
-```
-
----
-
-## API Endpoints
-
-### **GET /**
-Returns the homepage (`index.html`).
-
-### **POST /predict**
-Classify input text.
-
-**Request body:**
-```json
-{
-  "text": "Congratulations! You have won a lottery."
-}
-```
-
-**Response:**
-```json
-{
-  "prediction": "spam"
-}
-```
-
----
-
-## Deploy on Render
-
-1. Push this repo to GitHub.
-2. Create a new **Web Service** on [Render](https://render.com).
-3. Fill in settings:
-   - **Environment:** `Python 3`
-   - **Build Command:**  
-     ```bash
-     pip install -r requirements.txt
-     ```
-   - **Start Command:**  
-     ```bash
-     uvicorn app:app --host 0.0.0.0 --port 10000
-     ```
-     > ⚠️ Change `app:app` to `main:app` if your main file is named `main.py`.
-
-4. Make sure your repo has this structure:
-
+## Project Structure
 ```
 .
-├── app.py (or main.py)        # FastAPI app
-├── vectorizer.pkl             # Saved TF-IDF vectorizer
-├── spam_classifier.pkl        # Trained model
+├── main.py                # FastAPI app
+├── vectorizer.pkl         # Pickle file for vectorizer
+├── spam_classifier.pkl    # Pickle file for ML model
 ├── templates/
-│   └── index.html             # Frontend template
-├── requirements.txt
-└── README.md
+│   └── index.html         # Frontend HTML page
+├── requirements.txt       # Dependencies
+├── Procfile               # Deployment start command
+└── README.txt             # Project documentation
 ```
+
+## Local Setup
+1. Clone the repo or download the files
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Run locally:
+   ```bash
+   uvicorn main:app --reload
+   ```
+4. Visit: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+
+## Deployment (Render)
+1. Push code to GitHub
+2. Connect repo to [Render](https://render.com/)
+3. Set **Start Command** as:
+   ```bash
+   uvicorn main:app --host 0.0.0.0 --port 10000
+   ```
+4. Deploy 🚀
+
+---
+Made with ❤️ using FastAPI & scikit-learn
