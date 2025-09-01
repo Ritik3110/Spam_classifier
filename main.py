@@ -5,6 +5,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
+from fastapi.templating import Jinja2Templates
+
 import os
 
 nltk_data_path = os.path.join(os.getcwd(), "nltk_data")
@@ -40,10 +42,11 @@ def transform_text(text: str) -> str:
     text = [ps.stem(word) for word in text]
     return " ".join(text)
 
-# GET route (health check / welcome)
-@app.get("/")
-async def home():
-    return {"message": "Spam Classifier API is running 🚀. Use POST /predict with {text: 'your message'}"}
+templates = Jinja2Templates(directory="templates")
+
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 # POST route (prediction)
 @app.post("/predict")
