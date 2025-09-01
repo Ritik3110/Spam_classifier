@@ -5,6 +5,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 import os
